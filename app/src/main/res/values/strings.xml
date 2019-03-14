@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">mama_tvoja</string>
+    <string-array name="temps">
+        <item>C</item>
+        <item>F</item>
+    </string-array>
 </resources>
