@@ -16,7 +16,7 @@ import android.widget.Toast;
 public class Forecast extends AppCompatActivity implements View.OnClickListener {
 
     Button temperature, wind, sun;
-    TextView temp, pressure, humidity, unit, sunrise, sunset, wind_speed, wind_direction;
+    TextView temp, pressure, humidity, unit, sunrise, sunset, wind_speed, wind_direction, city;
     ImageView sunce;
     View temp1, sun_view, wind_view;
     Spinner temps;
@@ -36,6 +36,9 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener 
         sunset=(TextView)findViewById(R.id.sunset);
         wind_speed=(TextView)findViewById(R.id.wind_speed);
         wind_direction=(TextView)findViewById(R.id.wind_direction);
+        city=(TextView)findViewById(R.id.city_write);
+        Bundle bundle=getIntent().getExtras();
+        city.setText("City:"+bundle.get("city_name").toString());
         sunce=(ImageView)findViewById(R.id.sunce);
         temps=(Spinner)findViewById(R.id.spinner1);
         ArrayAdapter<CharSequence> adapter=ArrayAdapter.createFromResource(this, R.array.temps, android.R.layout.simple_spinner_item);
@@ -103,6 +106,8 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener 
                 wind_view.setVisibility(View.VISIBLE);
                 wind_direction.setVisibility(View.VISIBLE);
                 wind_speed.setVisibility(View.VISIBLE);
+                break;
+            default:
                 break;
         }
     }
