@@ -13,10 +13,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Calendar;
+
 public class Forecast extends AppCompatActivity implements View.OnClickListener {
 
     Button temperature, wind, sun;
-    TextView temp, pressure, humidity, unit, sunrise, sunset, wind_speed, wind_direction, city;
+    TextView temp, pressure, humidity, unit, sunrise, sunset;
+    TextView wind_speed, wind_direction, city, day;
     ImageView sunce;
     View temp1, sun_view, wind_view;
     Spinner temps;
@@ -25,9 +28,11 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
 
+        Calendar kalendar=Calendar.getInstance();
         temperature=(Button)findViewById(R.id.temp);
         wind=(Button)findViewById(R.id.wind);
         sun=(Button)findViewById(R.id.sun);
+
         temp=(TextView)findViewById(R.id.temp_text);
         pressure=(TextView)findViewById(R.id.pressure_text);
         humidity=(TextView)findViewById(R.id.humidity_text);
@@ -36,17 +41,48 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener 
         sunset=(TextView)findViewById(R.id.sunset);
         wind_speed=(TextView)findViewById(R.id.wind_speed);
         wind_direction=(TextView)findViewById(R.id.wind_direction);
+
         city=(TextView)findViewById(R.id.city_write);
         Bundle bundle=getIntent().getExtras();
         city.setText("City:"+bundle.get("city_name").toString());
+
+        day=(TextView)findViewById(R.id.day_write);
+        switch (kalendar.get(Calendar.DAY_OF_WEEK))
+        {
+            case 2:
+                day.setText(R.string.mon);
+                break;
+            case 3:
+                day.setText(R.string.tue);
+                break;
+            case 4:
+                day.setText(R.string.wed);
+                break;
+            case 5:
+                day.setText(R.string.thu);
+                break;
+            case 6:
+                day.setText(R.string.fri);
+                break;
+            case 7:
+                day.setText(R.string.sat);
+                break;
+            case 1:
+                day.setText(R.string.sun);
+                break;
+        }
+
         sunce=(ImageView)findViewById(R.id.sunce);
+
         temps=(Spinner)findViewById(R.id.spinner1);
         ArrayAdapter<CharSequence> adapter=ArrayAdapter.createFromResource(this, R.array.temps, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         temps.setAdapter(adapter);
+
         temp1=(View)findViewById(R.id.view_temp);
         sun_view=(View)findViewById(R.id.view_sun);
         wind_view=(View)findViewById(R.id.wind_view);
+
         temperature.setOnClickListener(this);
         wind.setOnClickListener(this);
         sun.setOnClickListener(this);

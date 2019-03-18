@@ -17,8 +17,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Day: Saturday"
-        android:textSize="30dp"/>
+        android:textSize="30dp"
+        android:id="@+id/day_write"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -33,20 +33,23 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Temperature"
-            android:id="@+id/temp"/>
+            android:text="@string/temp"
+            android:id="@+id/temp"
+            android:textAllCaps="false"/>
         <Button
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Sunrise/Sunset"
-            android:id="@+id/sun"/>
+            android:text="@string/sunce"
+            android:id="@+id/sun"
+            android:textAllCaps="false"/>
         <Button
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Wind"
-            android:id="@+id/wind"/>
+            android:text="@string/wind"
+            android:id="@+id/wind"
+            android:textAllCaps="false"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -73,7 +76,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Unit:"
+            android:text="@string/unit"
             android:id="@+id/unit"
             android:visibility="gone"/>
         <Spinner
