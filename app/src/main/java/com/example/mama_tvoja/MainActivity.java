@@ -4,34 +4,47 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.util.ArrayList;
+import java.util.List;
 
-    Button display;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemLongClickListener {
+
+    Button add_city;
     EditText city_name;
+    ListView list;
+    CustomAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        display= findViewById(R.id.display);
-        city_name=(EditText)findViewById(R.id.city_name);
-        display.setOnClickListener(this);
+        add_city=(Button) findViewById(R.id.btn_main);
+        list=(ListView) findViewById(R.id.list_main);
+        city_name=(EditText)findViewById(R.id.edit_main);
+        adapter = new CustomAdapter(this);
+        adapter.addElement(new List_element(getString(R.string.novi_sad)));
+        adapter.addElement(new List_element(getString(R.string.beograd)));
+        adapter.addElement(new List_element(getString(R.string.rakovac)));
+        add_city.setOnClickListener(this);
+        list.setOnItemLongClickListener(this);
+        list.setAdapter(adapter);
     }
+
 
     @Override
     public void onClick(View v) {
-        switch (v.getId())
-        {
-            case R.id.display:
-                Intent intent=new Intent(MainActivity.this, Forecast.class);
-                intent.putExtra("city_name", city_name.getText());
-                startActivity(intent);
-                break;
-            default:
-                break;
-        }
+        adapter.addElement(new List_element(city_name.getText().toString()));
+
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        adapter.removeElement(position);
+        return true;
     }
 }

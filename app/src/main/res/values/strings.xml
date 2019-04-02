@@ -12,6 +12,11 @@
     <string name="sunce">Sunrise/Sunset</string>
     <string name="wind">Wind</string>
     <string name="unit">Unit:</string>
+    <string name="input_new_city">Input new city</string>
+    <string name="add_city">Add city</string>
+    <string name="novi_sad">Novi Sad</string>
+    <string name="beograd">Beograd</string>
+    <string name="rakovac">Rakovac</string>
     <string-array name="temps">
         <item>C</item>
         <item>F</item>
