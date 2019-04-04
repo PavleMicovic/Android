@@ -26,12 +26,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         add_city=(Button) findViewById(R.id.btn_main);
         list=(ListView) findViewById(R.id.list_main);
         city_name=(EditText)findViewById(R.id.edit_main);
+        list.setOnItemLongClickListener(this);
         adapter = new CustomAdapter(this);
         adapter.addElement(new List_element(getString(R.string.novi_sad)));
         adapter.addElement(new List_element(getString(R.string.beograd)));
         adapter.addElement(new List_element(getString(R.string.rakovac)));
         add_city.setOnClickListener(this);
-        list.setOnItemLongClickListener(this);
         list.setAdapter(adapter);
     }
 
@@ -47,4 +47,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter.removeElement(position);
         return true;
     }
+
 }

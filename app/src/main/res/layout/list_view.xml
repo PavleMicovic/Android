@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:weightSum="2">
+    android:weightSum="3">
     <RadioButton
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -16,5 +16,14 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.5"
         android:id="@+id/list_text"/>
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/disp"
+        android:textAllCaps="false"
+        android:id="@+id/list_btn1"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
 </LinearLayout>

@@ -17,6 +17,7 @@
     <string name="novi_sad">Novi Sad</string>
     <string name="beograd">Beograd</string>
     <string name="rakovac">Rakovac</string>
+    <string name="disp">Display info</string>
     <string-array name="temps">
         <item>C</item>
         <item>F</item>

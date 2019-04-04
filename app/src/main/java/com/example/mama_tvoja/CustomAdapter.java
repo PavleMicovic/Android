@@ -6,9 +6,11 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,11 +19,12 @@ import com.example.mama_tvoja.R;
 
 import java.util.ArrayList;
 
-public class CustomAdapter extends BaseAdapter {
+public class CustomAdapter extends BaseAdapter /*implements AdapterView.OnItemLongClickListener*/ {
 
     private Context mContext;
     private ArrayList<List_element> mElements;
     private RadioButton bla=null;
+    private Button btn;
 
     public CustomAdapter(Context context)
     {
@@ -44,7 +47,7 @@ public class CustomAdapter extends BaseAdapter {
     }
     public void removeElement(int position){
         mElements.remove(position);
-        notifyDataSetChanged();
+       notifyDataSetChanged();
     }
     @Override
     public int getCount() {
@@ -79,6 +82,7 @@ public class CustomAdapter extends BaseAdapter {
             ViewHolder holder = new ViewHolder();
             holder.radio = (RadioButton) view.findViewById(R.id.list_btn);
             holder.name = (TextView) view.findViewById(R.id.list_text);
+            holder.btn=(Button)view.findViewById(R.id.list_btn1);
             view.setTag(holder);
         }
 
@@ -96,12 +100,30 @@ public class CustomAdapter extends BaseAdapter {
             }
         });
 
+        holder.btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(mContext, Forecast.class);
+                intent.putExtra("city_name", holder.name.getText().toString());
+                mContext.startActivity(intent);
+                btn=(Button) v;
+            }
+        });
+
+
         return view;
 
     }
 
+   /* public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        removeElement(position);
+        return true;
+    }*/
+
     private class ViewHolder {
-        public Button radio = null;
+        public RadioButton radio = null;
         public TextView name = null;
+        public Button btn=null;
+
     }
 }
