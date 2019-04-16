@@ -90,19 +90,16 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Temperature:11"
         android:id="@+id/temp_text"
         android:visibility="gone"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Pressure:1000"
         android:id="@+id/pressure_text"
         android:visibility="gone"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Humidity:44%"
         android:id="@+id/humidity_text"
         android:visibility="gone"/>
     <View
@@ -114,13 +111,11 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sunrise time:06:47"
         android:id="@+id/sunrise"
         android:visibility="gone"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sunset time:17:45"
         android:id="@+id/sunset"
         android:visibility="gone"/>
     <View
@@ -132,13 +127,11 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Wind speed:4.1"
         android:id="@+id/wind_speed"
         android:visibility="gone"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Wind direction:N"
         android:id="@+id/wind_direction"
         android:visibility="gone"/>
 

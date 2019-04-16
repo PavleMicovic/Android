@@ -3,6 +3,7 @@ package com.example.mama_tvoja;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,16 +14,29 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Calendar;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class Forecast extends AppCompatActivity implements View.OnClickListener {
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
+public class Forecast extends AppCompatActivity implements View.OnClickListener{
 
     Button temperature, wind, sun;
-    TextView temp, pressure, humidity, unit, sunrise, sunset;
-    TextView wind_speed, wind_direction, city, day;
+    TextView temp2, pressure1, humidity1, unit, sunrise1, sunset1;
+    TextView wind_speed1, wind_direction1, city, day;
     ImageView sunce;
     View temp1, sun_view, wind_view;
     Spinner temps;
+    private http_helper httpHelper;
+    private ArrayAdapter<String> mListAdapter;
+    public static String BASE_URL = "https://api.openweathermap.org/data/2.5/weather?q=";
+    public static String API_KEY="&APPID=b90fba716e00f3e7ec2b4a93e350a3e9&units=metric";
+    public static String CITY;
+    public String CURRENT_WEATHER;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,18 +47,22 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener 
         wind=(Button)findViewById(R.id.wind);
         sun=(Button)findViewById(R.id.sun);
 
-        temp=(TextView)findViewById(R.id.temp_text);
-        pressure=(TextView)findViewById(R.id.pressure_text);
-        humidity=(TextView)findViewById(R.id.humidity_text);
+        temp2=(TextView)findViewById(R.id.temp_text);
+        pressure1=(TextView)findViewById(R.id.pressure_text);
+        humidity1=(TextView)findViewById(R.id.humidity_text);
         unit=(TextView)findViewById(R.id.unit);
-        sunrise=(TextView)findViewById(R.id.sunrise);
-        sunset=(TextView)findViewById(R.id.sunset);
-        wind_speed=(TextView)findViewById(R.id.wind_speed);
-        wind_direction=(TextView)findViewById(R.id.wind_direction);
+        sunrise1=(TextView)findViewById(R.id.sunrise);
+        sunset1=(TextView)findViewById(R.id.sunset);
+        wind_speed1=(TextView)findViewById(R.id.wind_speed);
+        wind_direction1=(TextView)findViewById(R.id.wind_direction);
 
         city=(TextView)findViewById(R.id.city_write);
         Bundle bundle=getIntent().getExtras();
         city.setText("City:"+bundle.get("city_name").toString());
+        CITY=bundle.get("city_name").toString();
+
+        CURRENT_WEATHER=BASE_URL+CITY+API_KEY;
+        Log.d("URL", "url: "+ CURRENT_WEATHER);
 
         day=(TextView)findViewById(R.id.day_write);
         switch (kalendar.get(Calendar.DAY_OF_WEEK))
@@ -87,61 +105,190 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener 
         wind.setOnClickListener(this);
         sun.setOnClickListener(this);
 
+        httpHelper=new http_helper();
+    }
+
+    public String degreeToString(Double degree) {
+        if (degree>337.5)
+            return "North";
+        if (degree>292.5)
+            return "North West";
+        if(degree>247.5)
+            return "West";
+        if(degree>202.5)
+            return "South West";
+        if(degree>157.5)
+            return "South";
+        if(degree>122.5)
+            return "South East";
+        if(degree>67.5)
+            return "East";
+        if(degree>22.5){
+            return "North East";
+        } else
+            return "North";
     }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.temp:
-                temp.setVisibility(View.VISIBLE);
+                temp2.setVisibility(View.VISIBLE);
                 sunce.setVisibility(View.VISIBLE);
-                pressure.setVisibility(View.VISIBLE);
-                humidity.setVisibility(View.VISIBLE);
+                pressure1.setVisibility(View.VISIBLE);
+                humidity1.setVisibility(View.VISIBLE);
                 temps.setVisibility(View.VISIBLE);
                 unit.setVisibility(View.VISIBLE);
                 temp1.setVisibility(View.VISIBLE);
 
                 sun_view.setVisibility(View.GONE);
-                sunrise.setVisibility(View.GONE);
-                sunset.setVisibility(View.GONE);
+                sunrise1.setVisibility(View.GONE);
+                sunset1.setVisibility(View.GONE);
 
                 wind_view.setVisibility(View.GONE);
-                wind_direction.setVisibility(View.GONE);
-                wind_speed.setVisibility(View.GONE);
+                wind_direction1.setVisibility(View.GONE);
+                wind_speed1.setVisibility(View.GONE);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject jsonobject = httpHelper.getJSONObjectFromURL(CURRENT_WEATHER);
+                            JSONObject mainobject = jsonobject.getJSONObject("main");
+
+                            final String temp = mainobject.get("temp").toString();
+                            final String pressure = mainobject.get("pressure").toString();
+                            final String humidity = mainobject.get("humidity").toString();
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    temp2.setText("Temperature: " + temp);
+                                    pressure1.setText("Pressure: " + pressure + " mbar");
+                                    humidity1.setText("Humidity: " + humidity + " %");
+
+                                    temps.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                        @Override
+                                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                            String selectedItem = parent.getItemAtPosition(position).toString();
+                                            if (selectedItem.equals("C")) {
+                                                temp2.setText("Temperature: " + temp);
+                                            } else if (selectedItem.equals("F")){
+                                                double tmp = Double.parseDouble(temp);
+                                                tmp = (int) (tmp * (9 / 5) + 32);
+                                                String stemp = Double.toString(tmp);
+                                                temp2.setText("Temperature: " + stemp);
+                                            }
+                                        }
+
+
+                                        @Override
+                                        public void onNothingSelected(AdapterView<?> parent) {
+                                            temp2.setText("Temperature: " + temp);
+                                        }
+                                    });
+                                }
+
+                            });
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }).start();
                 break;
             case R.id.sun:
-                temp.setVisibility(View.GONE);
+                temp2.setVisibility(View.GONE);
                 sunce.setVisibility(View.GONE);
-                pressure.setVisibility(View.GONE);
-                humidity.setVisibility(View.GONE);
+                pressure1.setVisibility(View.GONE);
+                humidity1.setVisibility(View.GONE);
                 temps.setVisibility(View.GONE);
                 unit.setVisibility(View.GONE);
                 temp1.setVisibility(View.GONE);
 
                 sun_view.setVisibility(View.VISIBLE);
-                sunrise.setVisibility(View.VISIBLE);
-                sunset.setVisibility(View.VISIBLE);
+                sunrise1.setVisibility(View.VISIBLE);
+                sunset1.setVisibility(View.VISIBLE);
 
                 wind_view.setVisibility(View.GONE);
-                wind_direction.setVisibility(View.GONE);
-                wind_speed.setVisibility(View.GONE);
+                wind_direction1.setVisibility(View.GONE);
+                wind_speed1.setVisibility(View.GONE);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject jsonobject = httpHelper.getJSONObjectFromURL(CURRENT_WEATHER);
+                            JSONObject sysobject = jsonobject.getJSONObject("sys");
+
+                            long sun = Long.valueOf(sysobject.get("sunrise").toString()) * 1000;
+                            Date date1 = new Date(sun);
+                            final String sunrise = new SimpleDateFormat("hh:mma", Locale.ENGLISH).format(date1);
+
+                            long night = Long.valueOf(sysobject.get("sunset").toString()) * 1000;
+                            Date date2 = new Date(night);
+                            final String sunset = new SimpleDateFormat("hh:mma", Locale.ENGLISH).format(date2);
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    sunrise1.setText("Sunrise: " + sunrise);
+                                    sunset1.setText("Sunset: " + sunset);
+                                }
+                            });
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
                 break;
             case R.id.wind:
-                temp.setVisibility(View.GONE);
+                temp2.setVisibility(View.GONE);
                 sunce.setVisibility(View.GONE);
-                pressure.setVisibility(View.GONE);
-                humidity.setVisibility(View.GONE);
+                pressure1.setVisibility(View.GONE);
+                humidity1.setVisibility(View.GONE);
                 temps.setVisibility(View.GONE);
                 unit.setVisibility(View.GONE);
                 temp1.setVisibility(View.GONE);
 
                 sun_view.setVisibility(View.GONE);
-                sunrise.setVisibility(View.GONE);
-                sunset.setVisibility(View.GONE);
+                sunrise1.setVisibility(View.GONE);
+                sunset1.setVisibility(View.GONE);
 
                 wind_view.setVisibility(View.VISIBLE);
-                wind_direction.setVisibility(View.VISIBLE);
-                wind_speed.setVisibility(View.VISIBLE);
+                wind_direction1.setVisibility(View.VISIBLE);
+                wind_speed1.setVisibility(View.VISIBLE);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject jsonobject = httpHelper.getJSONObjectFromURL(CURRENT_WEATHER);
+                            JSONObject windobject = jsonobject.getJSONObject("wind");
+                            final String wind_speed = windobject.get("speed").toString();
+                            double degree = windobject.getDouble("deg");
+                            final String wind_direction = degreeToString(degree);
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    wind_speed1.setText("Wind speed: " + wind_speed + " m/s");
+                                    wind_direction1.setText("Wind direction: " + wind_direction);
+                                }
+                            });
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
                 break;
             default:
                 break;

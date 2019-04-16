@@ -36,6 +36,7 @@ public class CustomAdapter extends BaseAdapter /*implements AdapterView.OnItemLo
         for (List_element c : mElements) {
             if (c.mName.equals(element.mName))
                 contains = true;
+            else if(c.mName.equals("")){}
         }
         if(contains==true) {
             Toast.makeText(mContext, "Item already exists", Toast.LENGTH_SHORT).show();

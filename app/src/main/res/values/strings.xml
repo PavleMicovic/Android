@@ -15,7 +15,7 @@
     <string name="input_new_city">Input new city</string>
     <string name="add_city">Add city</string>
     <string name="novi_sad">Novi Sad</string>
-    <string name="beograd">Beograd</string>
+    <string name="beograd">Belgrade</string>
     <string name="rakovac">Rakovac</string>
     <string name="disp">Display info</string>
     <string-array name="temps">
