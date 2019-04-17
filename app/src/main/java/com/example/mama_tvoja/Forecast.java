@@ -149,6 +149,8 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                 wind_direction1.setVisibility(View.GONE);
                 wind_speed1.setVisibility(View.GONE);
 
+                temps.setSelection(0);
+
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
