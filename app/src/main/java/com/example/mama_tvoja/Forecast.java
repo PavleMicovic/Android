@@ -65,7 +65,9 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
         Log.d("URL", "url: "+ CURRENT_WEATHER);
 
         day=(TextView)findViewById(R.id.day_write);
-        switch (kalendar.get(Calendar.DAY_OF_WEEK))
+        SimpleDateFormat date= new SimpleDateFormat("dd MMM yyyy");
+        day.setText("Date: "+date.format(kalendar.getTime()));
+        /*switch (kalendar.get(Calendar.DAY_OF_WEEK))
         {
             case 2:
                 day.setText(R.string.mon);
@@ -88,7 +90,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
             case 1:
                 day.setText(R.string.sun);
                 break;
-        }
+        }*/
 
         sunce=(ImageView)findViewById(R.id.sunce);
 
