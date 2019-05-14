@@ -37,6 +37,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
     public static String API_KEY="&APPID=b90fba716e00f3e7ec2b4a93e350a3e9&units=metric";
     public static String CITY;
     public String CURRENT_WEATHER;
+    CityDbHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +109,79 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
         sun.setOnClickListener(this);
 
         httpHelper=new http_helper();
-    }
+        db=new CityDbHelper(this);
+
+            new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject jsonobject = httpHelper.getJSONObjectFromURL(CURRENT_WEATHER);
+                    JSONObject mainobject = jsonobject.getJSONObject("main");
+                    JSONObject sysobject = jsonobject.getJSONObject("sys");
+                    JSONObject windobject = jsonobject.getJSONObject("wind");
+
+                    final String wind_speed = windobject.get("speed").toString();
+                    double degree = windobject.getDouble("deg");
+                    final String wind_direction = degreeToString(degree);
+
+                    long sun = Long.valueOf(sysobject.get("sunrise").toString()) * 1000;
+                    Date date1 = new Date(sun);
+                    final String sunrise = new SimpleDateFormat("hh:mma", Locale.ENGLISH).format(date1);
+
+                    long night = Long.valueOf(sysobject.get("sunset").toString()) * 1000;
+                    Date date2 = new Date(night);
+                    final String sunset = new SimpleDateFormat("hh:mma", Locale.ENGLISH).format(date2);
+
+                    final String temp = mainobject.get("temp").toString();
+                    final String pressure = mainobject.get("pressure").toString();
+                    final String humidity = mainobject.get("humidity").toString();
+
+                    Paket p=new Paket(city.getText().toString(), day.getText().toString(), Double.parseDouble(temp), Double.parseDouble(humidity), Double.parseDouble(pressure), sunrise, sunset, Double.parseDouble(wind_speed), wind_direction);
+                    db.insert(p);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            temp2.setText("Temperature: " + temp);
+                            pressure1.setText("Pressure: " + pressure + " mbar");
+                            humidity1.setText("Humidity: " + humidity + " %");
+                            sunrise1.setText("Sunrise: " + sunrise);
+                            sunset1.setText("Sunset: " + sunset);
+                            wind_speed1.setText("Wind speed: " + wind_speed + " m/s");
+                            wind_direction1.setText("Wind direction: " + wind_direction);
+
+                            temps.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                @Override
+                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                    String selectedItem = parent.getItemAtPosition(position).toString();
+                                    if (selectedItem.equals("C")) {
+                                        temp2.setText("Temperature: " + temp);
+                                    } else if (selectedItem.equals("F")){
+                                        double tmp = Double.parseDouble(temp);
+                                        tmp = (int) (tmp * (9 / 5) + 32);
+                                        String stemp = Double.toString(tmp);
+                                        temp2.setText("Temperature: " + stemp);
+                                    }
+                                }
+
+
+                                @Override
+                                public void onNothingSelected(AdapterView<?> parent) {
+                                    temp2.setText("Temperature: " + temp);
+                                }
+                            });
+                        }
+
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+        }
 
     public String degreeToString(Double degree) {
         if (degree>337.5)
@@ -153,7 +226,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
 
                 temps.setSelection(0);
 
-                new Thread(new Runnable() {
+                /*new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -201,7 +274,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                         }
 
                     }
-                }).start();
+                }).start();*/
                 break;
             case R.id.sun:
                 temp2.setVisibility(View.GONE);
@@ -220,7 +293,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                 wind_direction1.setVisibility(View.GONE);
                 wind_speed1.setVisibility(View.GONE);
 
-                new Thread(new Runnable() {
+                /*new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -248,7 +321,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                             e.printStackTrace();
                         }
                     }
-                }).start();
+                }).start();*/
 
                 break;
             case R.id.wind:
@@ -268,7 +341,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                 wind_direction1.setVisibility(View.VISIBLE);
                 wind_speed1.setVisibility(View.VISIBLE);
 
-                new Thread(new Runnable() {
+                /*new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -291,7 +364,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                             e.printStackTrace();
                         }
                     }
-                }).start();
+                }).start();*/
 
                 break;
             default:
