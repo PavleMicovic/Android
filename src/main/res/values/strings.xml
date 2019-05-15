@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Forecast</string>
+    <string name="mon">Day: Monday</string>
+    <string name="tue">Day: Tuesday</string>
+    <string name="wed">Day: Wednesday</string>
+    <string name="thu">Day: Thursday</string>
+    <string name="fri">Day: Friday</string>
+    <string name="sat">Day: Saturday</string>
+    <string name="sun">Day: Sunday</string>
+    <string name="title">Weather Forecast</string>
+    <string name="temp">Temperature</string>
+    <string name="sunce">Sunrise/Sunset</string>
+    <string name="wind">Wind</string>
+    <string name="unit">Unit:</string>
+    <string name="input_new_city">Input new city</string>
+    <string name="add_city">Add city</string>
+    <string name="novi_sad">Novi Sad</string>
+    <string name="beograd">Belgrade</string>
+    <string name="rakovac">Rakovac</string>
+    <string name="disp">Display info</string>
+    <string-array name="temps">
+        <item>C</item>
+        <item>F</item>
+    </string-array>
+</resources>
