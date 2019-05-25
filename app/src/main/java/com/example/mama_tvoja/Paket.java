@@ -18,8 +18,9 @@ public class Paket {
     private String sun_rise;
     private String wind_speed;
     private String wind_direction;
+    private String day;
 
-    public Paket(String date_time, String location, String temperature, String pressure, String humidity, String sun_set, String sun_rise, String wind_speed, String wind_direction) {
+    public Paket(String date_time, String day,  String location, String temperature, String pressure, String humidity, String sun_set, String sun_rise, String wind_speed, String wind_direction) {
         this.date_time = date_time;
         this.city = location;
         this.temperature = temperature;
@@ -29,6 +30,7 @@ public class Paket {
         this.sun_rise = sun_rise;
         this.wind_speed = wind_speed;
         this.wind_direction = wind_direction;
+        this.day=day;
     }
 
     public String getDate_time() {
@@ -66,6 +68,11 @@ public class Paket {
     public String getWind_direction() {
         return wind_direction;
     }
+
+    public String getDay(){return day;}
+
+    public void setDay(String day){this.day=day;}
+
     public void setCity(String city) {
         this.city=city;
     }

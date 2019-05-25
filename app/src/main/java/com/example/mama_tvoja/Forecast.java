@@ -1,6 +1,10 @@
 package com.example.mama_tvoja;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.media.Image;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.ServiceConnection;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,12 +46,52 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
     public String CURRENT_WEATHER;
     private CityDbHelper db;
     private Paket p;
+    Calendar kalendar;
+    String dan;
+    ArrayAdapter<CharSequence> adapter;
+    boolean mBound=false;
+    private ExampleService mService;
+
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ExampleService.LocalBinder binder = (ExampleService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to LocalService
+        Log.d("START SERVICE", "START SERVICE");
+        Intent intent = new Intent(this, ExampleService.class);
+        intent.putExtra("location", city.getText().toString());
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mBound == true)
+            unbindService(connection);
+        mBound = false;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
 
-        Calendar kalendar=Calendar.getInstance();
+        kalendar=Calendar.getInstance();
         temperature=(Button)findViewById(R.id.temp);
         wind=(Button)findViewById(R.id.wind);
         sun=(Button)findViewById(R.id.sun);
@@ -62,7 +107,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
 
         city=(TextView)findViewById(R.id.city_write);
         Bundle bundle=getIntent().getExtras();
-        city.setText("City:"+bundle.get("city_name").toString());
+        city.setText(bundle.get("city_name").toString());
         CITY=bundle.get("city_name").toString();
 
         CURRENT_WEATHER=BASE_URL+CITY+API_KEY;
@@ -70,12 +115,12 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
 
         day=(TextView)findViewById(R.id.day_write);
         SimpleDateFormat date= new SimpleDateFormat("dd MMM yyyy");
-        day.setText("Date: "+date.format(kalendar.getTime()));
+        day.setText(date.format(kalendar.getTime()));
 
         sunce=(ImageView)findViewById(R.id.sunce);
 
         temps=(Spinner)findViewById(R.id.spinner1);
-        ArrayAdapter<CharSequence> adapter=ArrayAdapter.createFromResource(this, R.array.temps, android.R.layout.simple_spinner_item);
+        adapter=ArrayAdapter.createFromResource(this, R.array.temps, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         temps.setAdapter(adapter);
 
@@ -94,24 +139,10 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
         refresh.setOnClickListener(this);
         update=(TextView)findViewById(R.id.last_updated);
         update.setVisibility(View.VISIBLE);
-        Log.d("MSG", "1");
-        if(db.contains(city.getText().toString(), date.format(kalendar.getTime()))!=null) {
-            Log.d("MSG", "CONTAINS");
-            p=db.readData(city.getText().toString());
-            temp2.setText("Temperature: " + p.getTemperature());
-            pressure1.setText("Pressure: " + p.getPressure() + " mbar");
-            humidity1.setText("Humidity: " + p.getHumidity() + " %");
-            sunrise1.setText("Sunrise: " + p.getSun_rise());
-            sunset1.setText("Sunset: " + p.getSun_set());
-            wind_speed1.setText("Wind speed: " + p.getWind_speed() + " m/s");
-            wind_direction1.setText("Wind direction: " + p.getWind_direction());
-        }
-        else {
-            Log.d("MSG", "DOESNT CONTAIN");
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
                         JSONObject jsonobject = httpHelper.getJSONObjectFromURL(CURRENT_WEATHER);
                         JSONObject mainobject = jsonobject.getJSONObject("main");
                         JSONObject sysobject = jsonobject.getJSONObject("sys");
@@ -133,8 +164,6 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                         final String pressure = mainobject.get("pressure").toString();
                         final String humidity = mainobject.get("humidity").toString();
 
-                        p = new Paket(city.getText().toString(), day.getText().toString(), temp, humidity, pressure, sunrise, sunset, wind_speed, wind_direction);
-                        db.insert(p);
 
                         runOnUiThread(new Runnable() {
                             @Override
@@ -167,9 +196,16 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                                         temp2.setText("Temperature: " + temp);
                                     }
                                 });
+                                String[] days = new String[] {"Ponedeljak", "Utorak", "Sreda", "Cetvrtak", "Petak", "Subota", "Nedelja"};
+                                dan = days[kalendar.get(Calendar.DAY_OF_WEEK) - 2];
+                                p=new Paket(day.getText().toString(), dan, city.getText().toString(), temp, pressure, humidity, sunset, sunrise, wind_speed, wind_direction);
+                                db.insert_location(p);
+                                Paket data_read = db.readData(city.getText().toString());
+                                update.setText("last updated " + data_read.getDate_time());
                             }
 
                         });
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     } catch (JSONException e) {
@@ -179,7 +215,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                 }
             }).start();
         }
-    }
+   // }
 
 
     public String degreeToString(Double degree) {
@@ -205,6 +241,8 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
+
+        final Paket read=db.readData(city.getText().toString());
         switch(v.getId()){
 
             case R.id.refresh:
@@ -233,9 +271,6 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                             final String temp = mainobject.get("temp").toString();
                             final String pressure = mainobject.get("pressure").toString();
                             final String humidity = mainobject.get("humidity").toString();
-
-                            p = new Paket(city.getText().toString(), day.getText().toString(), temp, humidity, pressure, sunrise, sunset, wind_speed, wind_direction);
-                            db.insert(p);
 
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -271,6 +306,14 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                                 }
 
                             });
+                            String[] days = new String[] {"Ponedeljak", "Utorak", "Sreda", "Cetvrtak", "Petak", "Subota", "Nedelja"};
+                            dan = days[kalendar.get(Calendar.DAY_OF_WEEK) - 2];
+
+                            p=new Paket(day.getText().toString(), dan, city.getText().toString(), temp, pressure, humidity, sunset, sunrise, wind_speed, wind_direction);
+                            Paket[] read_day=db.read_data_location(city.getText().toString());
+                            db.insert_location(p);
+                            Paket data_read = db.readData(city.getText().toString());
+                            update.setText("last updated " + data_read.getDate_time());
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (JSONException e) {
@@ -298,59 +341,40 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
 
                 temps.setSelection(0);
 
-                temp2.setText("Temperature: 15");
-                pressure1.setText("Pressure: 1051 mbar");
-                humidity1.setText("Humidity: 11.45%");
+                temps.setAdapter(adapter);
+                update.setText("last updated " + read.getDate_time());
 
-                /*new Thread(new Runnable() {
+                temps.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
-                    public void run() {
-                        try {
-                            JSONObject jsonobject = httpHelper.getJSONObjectFromURL(CURRENT_WEATHER);
-                            JSONObject mainobject = jsonobject.getJSONObject("main");
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                            final String temp = mainobject.get("temp").toString();
-                            final String pressure = mainobject.get("pressure").toString();
-                            final String humidity = mainobject.get("humidity").toString();
+                        //------------------------------------------------------------------
+                        String selected = parent.getItemAtPosition(position).toString();
+                        if (selected.equals("C")) {
+                            //Temperature.setText("Temperatura: " + read.getTemperature() + " °C\nPritisak: " + read.getPressure() + " hPA" + "\nVlažnost vazduha: " + read.getHumidity() + " %");
+                            temp2.setText("Temperature: " + read.getTemperature() + " °C");
+                            pressure1.setText("Pressure: " + read.getPressure()+ " mbar");
+                            humidity1.setText("Humidity: " + read.getHumidity() + " %");
+                        } else {
+                            double tempFarenhite = Double.parseDouble(read.getTemperature());
+                            tempFarenhite = tempFarenhite * (9 / 5) + 32;
+                            int tempRound = (int) tempFarenhite;
+                            String temperature = Integer.toString(tempRound);
+                            temp2.setText("Temperature: " + temperature + " °F");
+                            pressure1.setText("Pressure: " + read.getPressure() + " mbar");
+                            humidity1.setText("Humidity: " + read.getHumidity() + " %");
 
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    temp2.setText("Temperature: " + temp);
-                                    pressure1.setText("Pressure: " + pressure + " mbar");
-                                    humidity1.setText("Humidity: " + humidity + " %");
-
-                                    temps.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                        @Override
-                                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                            String selectedItem = parent.getItemAtPosition(position).toString();
-                                            if (selectedItem.equals("C")) {
-                                                temp2.setText("Temperature: " + temp);
-                                            } else if (selectedItem.equals("F")){
-                                                double tmp = Double.parseDouble(temp);
-                                                tmp = (int) (tmp * (9 / 5) + 32);
-                                                String stemp = Double.toString(tmp);
-                                                temp2.setText("Temperature: " + stemp);
-                                            }
-                                        }
-
-
-                                        @Override
-                                        public void onNothingSelected(AdapterView<?> parent) {
-                                            temp2.setText("Temperature: " + temp);
-                                        }
-                                    });
-                                }
-
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
 
                     }
-                }).start();*/
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        temp2.setText("Temperature: " + read.getTemperature() + " °C");
+                        pressure1.setText("Pressure: " + read.getPressure()+ " mbar");
+                        humidity1.setText("Humidity: " + read.getHumidity() + " %");
+                    }
+                });
                 break;
             case R.id.sun:
                 temp2.setVisibility(View.GONE);
@@ -369,36 +393,9 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                 wind_direction1.setVisibility(View.GONE);
                 wind_speed1.setVisibility(View.GONE);
 
-                /*new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            JSONObject jsonobject = httpHelper.getJSONObjectFromURL(CURRENT_WEATHER);
-                            JSONObject sysobject = jsonobject.getJSONObject("sys");
-
-                            long sun = Long.valueOf(sysobject.get("sunrise").toString()) * 1000;
-                            Date date1 = new Date(sun);
-                            final String sunrise = new SimpleDateFormat("hh:mma", Locale.ENGLISH).format(date1);
-
-                            long night = Long.valueOf(sysobject.get("sunset").toString()) * 1000;
-                            Date date2 = new Date(night);
-                            final String sunset = new SimpleDateFormat("hh:mma", Locale.ENGLISH).format(date2);
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    sunrise1.setText("Sunrise: " + sunrise);
-                                    sunset1.setText("Sunset: " + sunset);
-                                }
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();*/
-
+                update.setText("last updated " + read.getDate_time());
+                sunrise1.setText("Sunrise: "+read.getSun_rise());
+                sunset1.setText("Sunset: "+read.getSun_set());
                 break;
             case R.id.wind:
                 temp2.setVisibility(View.GONE);
@@ -417,31 +414,9 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                 wind_direction1.setVisibility(View.VISIBLE);
                 wind_speed1.setVisibility(View.VISIBLE);
 
-                /*new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            JSONObject jsonobject = httpHelper.getJSONObjectFromURL(CURRENT_WEATHER);
-                            JSONObject windobject = jsonobject.getJSONObject("wind");
-                            final String wind_speed = windobject.get("speed").toString();
-                            double degree = windobject.getDouble("deg");
-                            final String wind_direction = degreeToString(degree);
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    wind_speed1.setText("Wind speed: " + wind_speed + " m/s");
-                                    wind_direction1.setText("Wind direction: " + wind_direction);
-                                }
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();*/
-
+                update.setText("last updated " + read.getDate_time());
+                wind_speed1.setText("Wind speed: "+read.getWind_speed());
+                wind_direction1.setText("Wind direction: "+read.getWind_direction());
                 break;
             default:
                 break;
