@@ -51,6 +51,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
     ArrayAdapter<CharSequence> adapter;
     boolean mBound=false;
     private ExampleService mService;
+    MyNDK ndk;
 
     private ServiceConnection connection = new ServiceConnection() {
 
@@ -139,6 +140,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
         refresh.setOnClickListener(this);
         update=(TextView)findViewById(R.id.last_updated);
         update.setVisibility(View.VISIBLE);
+        ndk=new MyNDK();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -184,7 +186,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                                             temp2.setText("Temperature: " + temp);
                                         } else if (selectedItem.equals("F")) {
                                             double tmp = Double.parseDouble(temp);
-                                            tmp = (int) (tmp * (9 / 5) + 32);
+                                            tmp = ndk.calculate_temp(tmp, 0);
                                             String stemp = Double.toString(tmp);
                                             temp2.setText("Temperature: " + stemp);
                                         }
@@ -291,7 +293,7 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                                                 temp2.setText("Temperature: " + temp);
                                             } else if (selectedItem.equals("F")) {
                                                 double tmp = Double.parseDouble(temp);
-                                                tmp = (int) (tmp * (9 / 5) + 32);
+                                                tmp = ndk.calculate_temp(tmp, 0);
                                                 String stemp = Double.toString(tmp);
                                                 temp2.setText("Temperature: " + stemp);
                                             }
@@ -356,10 +358,9 @@ public class Forecast extends AppCompatActivity implements View.OnClickListener{
                             pressure1.setText("Pressure: " + read.getPressure()+ " mbar");
                             humidity1.setText("Humidity: " + read.getHumidity() + " %");
                         } else {
-                            double tempFarenhite = Double.parseDouble(read.getTemperature());
-                            tempFarenhite = tempFarenhite * (9 / 5) + 32;
-                            int tempRound = (int) tempFarenhite;
-                            String temperature = Integer.toString(tempRound);
+                            double tmp = Double.parseDouble(read.getTemperature());
+                            tmp = ndk.calculate_temp(tmp, 0);
+                            String temperature = Double.toString(tmp);
                             temp2.setText("Temperature: " + temperature + " °F");
                             pressure1.setText("Pressure: " + read.getPressure() + " mbar");
                             humidity1.setText("Humidity: " + read.getHumidity() + " %");

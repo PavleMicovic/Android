@@ -147,7 +147,7 @@ public class ExampleService extends Service {
                     }
                 }
             }).start();
-
+            
             Paket read = db.readData(location);
             //Toast.makeText(ExampleService.this, "Temperatura je azurirana, "+read.getTemperature(), Toast.LENGTH_SHORT).show();
             NotificationCompat.Builder b = new NotificationCompat.Builder(ExampleService.this);
